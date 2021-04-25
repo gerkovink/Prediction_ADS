@@ -1,0 +1,79 @@
+---
+title: "Aim of the project"
+author: "Gerko Vink"
+date: ""
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+
+# Load packages
+```{r, message=FALSE}
+library(mice)
+library(readr)
+```
+
+---
+
+# Read in the data
+The following data are obtained from [Kaggle](https://www.kaggle.com/uciml/pima-indians-diabetes-database)
+```{r}
+data <- read_csv("Data/diabetes.csv", 
+                 col_types = cols(Pregnancies = col_integer(), 
+                                  Glucose = col_integer(), 
+                                  BloodPressure = col_integer(), 
+                                  SkinThickness = col_integer(), 
+                                  Insulin = col_integer(), 
+                                  Age = col_integer(), 
+                                  Outcome = col_factor(levels = c("1", "0"))))
+```
+
+---
+
+# Aim
+The aim is to mimic the investigations in [this study](https://www.gerkovink.com/need_for_uncertainty/text1.html#simulation) on the *Pima Indians Diabetes* data set. To do so, we follow these steps:
+
+1. Formulate an analysis model
+2. Run the analysis model on the data set to obtain the *true* data inference
+3. Obtain statistical properties of the *true* data set, such as
+- `mean()`
+- `variance()`
+- `cor()`
+- etc. 
+4. Plot the distributions of the *true* data set
+5. Simulate `nsim = 1000` times the following:
+- a. Ampute the data with `ampute()` for a MCAR mechanism
+- b. Impute the data $m$ times with `mice` for each of the following imputation methods:
+  - mean imputation [`mice.impute.mean`]
+  - regression imputation (best value prediction): [`mice.impute.norm.predict`]
+  - stochastic regression imputation with $m=1$ [`mice.impute.norm.nob`]
+  - stochastic regression imputation with $m=5$ [`mice.impute.norm.nob`]
+  - Bayesian linear regression imputation with $m=1$ [`mice.impute.norm`]
+  - Bayesian linear regression imputation with $m=5$ [`mice.impute.norm`]
+  - Predictive mean matching imputation with $m=1$ [`mice.impute.pmm`]
+  - Predictive mean matching imputation with $m=5$ [`mice.impute.pmm`]
+- c. calculate the same statistical properties as under (3) on each of the $m$ imputed sets
+- d. Run the analysis model on each of the $m$ imputed sets
+- e. Combine the $m$ statistics and parameters from (5b) and (5c) into single inferences`
+6. Analyze the simulation results by
+- a. Calculating the average parameters and statistics over the `nsim = 1000` simulations
+- b. Plotting the distributions of the statistics and parameters with e.g. boxplots
+- c. Calculating for all statistics and parameters the bootstrap CI.
+- d. Calculating for all parameters the parametric CI cf. Rubin's rules.  
+- e. Calculating the 95% coverage rates of the parameters and statistics (bootstrap CI and parametric CI)
+7. Evaluate the results and determine if and when `mice` would yield valid imputed sets. 
+
+---
+
+# Session
+```{r}
+sessionInfo()
+```
+
+---
+
+End of document
